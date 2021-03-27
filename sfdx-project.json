@@ -1,0 +1,18 @@
+{
+    "packageDirectories": [
+        {
+            "path": "force-app",
+            "default": true,
+            "package": "Salesforce Notes Sharing Manager",
+            "versionName": "ver 2.0",
+            "versionNumber": "0.2.0.NEXT"
+        }
+    ],
+    "namespace": "",
+    "sfdcLoginUrl": "https://login.salesforce.com",
+    "sourceApiVersion": "51.0",
+    "packageAliases": {
+        "Salesforce Notes Sharing Manager": "0Ho2x000000TNp6CAG",
+        "Salesforce Notes Sharing Manager@0.2.0-1": "04t2x0000043iNaAAI"
+    }
+}

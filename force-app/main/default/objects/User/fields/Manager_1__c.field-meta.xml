@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Manager_1__c</fullName>
+    <deprecated>false</deprecated>
+    <description>Immediate manager of the user&apos;s &quot;Manager&quot;.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Immediate manager of the user&apos;s &quot;Manager&quot;.</inlineHelpText>
+    <label>Manager + 1</label>
+    <relationshipName>User</relationshipName>
+    <restrictedAdminField>false</restrictedAdminField>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>Hierarchy</type>
+</CustomField>

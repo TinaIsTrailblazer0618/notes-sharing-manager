@@ -1,0 +1,19 @@
+List<Notes_Sharing_Group__mdt> notesSharingGroups = [SELECT DeveloperName, Active__c FROM Notes_Sharing_Group__mdt];
+
+List<String> groupDevNames = new List<String>();
+
+for (Notes_Sharing_Group__mdt notesSharingGroup : notesSharingGroups) {
+    if (notesSharingGroup.Active__c) {
+        groupDevNames.add(notesSharingGroup.DeveloperName);
+    }
+}
+
+// Get the Ids of the groups
+Set<Id> groupIds = new Set<Id>();
+for (Group gr : [SELECT Id 
+                FROM Group 
+                WHERE DeveloperName IN :groupDevNames]) {
+    groupIds.add(gr.Id);
+}
+
+system.debug('groupIds: ' + groupIds);
