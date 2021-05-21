@@ -1,7 +1,7 @@
-@isTest
+@IsTest
 private class OTRT_NoteContentDecoder_Test {
 
-    static final String PROFILE_NAME = ConstantsSelector.TEST_PROFILE_CEB_LEAD;
+    static final String PROFILE_NAME = ConstantsSelector.TEST_PROFILE_CLIENT_SALES;
     static final String ROLE_NAME = 'BD_Sales';
     static final String LAST_NAME = 'GenericLastName';    
    
@@ -16,7 +16,7 @@ private class OTRT_NoteContentDecoder_Test {
         TestDataFactory.contentDocumentLinkedToCurrentUser(notes, true);
     }
 
-    @isTest static void decodeNoteContent() {
+    @IsTest static void decodeNoteContent() {
         ContentNote note = [SELECT Id FROM ContentNote WHERE Title LIKE :ConstantsSelector.TEST_CONTENT_NOTE_TITLE + '%'].get(0);
         String noteContent = OTRT_NoteContentDecoder.decodeNoteContent(note.Id);
         System.assertEquals('Unit Test Note Body', noteContent, 'Expected note content: \'Unit Test Note Body\'');

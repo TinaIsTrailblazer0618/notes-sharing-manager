@@ -4,15 +4,15 @@
  * @builtDate 8th July, 2020
  * @description Contains methods to construct and/or validate commonly used records
 **/
-@isTest
+@IsTest
 public class TestDataFactory {
 
     /**
-     * @name constructContentVersionsOfUser
+     * @name constructContentVersionsOfGroupMembers
      * @description Constructs a list of ContentVersion records for unit tests
      * @params Integer cnt, Id groupId, Boolean doInsert
     **/
-    public static List<ContentVersion> constructContentVersionsOfUser(Integer cnt, Id groupId, Boolean doInsert) {
+    public static List<ContentVersion> constructContentVersionsOfGroupMembers(Integer cnt, Id groupId, Boolean doInsert) {
         // This method returns a list, of size cnt, of uniquely named ContentVersion records
         //  with all the required fields populated
         //  and ContentVersion owner set to specified user - here is team member
@@ -170,10 +170,11 @@ public class TestDataFactory {
             Account acc = new Account();
             acc.Name = accName + i;
             acc.Account_Name_English__c = accName + i;
-            acc.Industry = '半導體業';
-            acc.Region__c = 'North-New Taipei';
+            acc.Industry = SObjectUtils.getPicklistValues('Account', 'Industry')[0].getValue();
+            acc.Region__c = SObjectUtils.getPicklistValues('Account', 'Region__c')[0].getValue();
             acc.NumberOfEmployees = 500;
-            acc.Account_Classification__c = 'Domestic Company – Listed';
+            acc.Account_Classification__c = 
+                SObjectUtils.getPicklistValues('Account', 'Account_Classification__c')[0].getValue();
             accLst.add(acc);            
         }
         if (doInsert) {
@@ -242,9 +243,9 @@ public class TestDataFactory {
      * @description Inserts standard public group
      * @params Boolean doInsert
     **/
-    public static Group constructPublicGroup(Boolean doInsert) {
+    public static Group constructPublicGroup(String groupName, Boolean doInsert) {
         Group testGroup = new Group(
-            Name = ConstantsSelector.TEST_GROUP_NAME, // Do Not Change. It's tied to Notes_Sharing_Group__mdt record.
+            Name = groupName,
             Type = 'Regular'
         );
         if (doInsert) {
@@ -275,27 +276,6 @@ public class TestDataFactory {
             insert members;
         }
         return members;  
-    }
-
-    /**
-     * @name insertTestDataForNotes
-     * @description Inserts ContentVersions, ContentNotes, ContentDocumentLinks
-     * @params Integer cnt, Id groupId, Id userId, Boolean doInsert
-    **/
-    public static void insertTestDataForNotes(Integer cnt, Id groupId, Id userId, Boolean doInsert) {
-        // Constructs a list of ContentVersion and ContentNote records with specified owner 
-        //  and shares with current user for use as test data
-        List<ContentVersion> cvs = constructContentVersionsOfUser(cnt, groupId, doInsert);
-
-        List<ContentNote> cns1 = constructContentNotesOfGroupMembers(cnt, groupId, doInsert);
-
-        List<ContentNote> cns2 = constructContentNotesOfUser(cnt, userId, doInsert);
-
-        contentDocumentLinkedToCurrentUser(cvs, doInsert);
-
-        contentDocumentLinkedToCurrentUser(cns1, doInsert);
-
-        contentDocumentLinkedToCurrentUser(cns2, doInsert);
     }
 
     /**

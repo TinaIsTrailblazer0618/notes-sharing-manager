@@ -1,176 +1,275 @@
-@isTest
+@IsTest
 private class ContentDocumentLinkHelper_Test {
 
-    static final Id GROUP_ID_CEB = ConstantsSelector.GROUP_ID_CEB;
-    static final Id GROUP_ID_CIR = ConstantsSelector.GROUP_ID_CIR;
-    static final Id LEADER_CEB = ConstantsSelector.TEAM_LEAD_ID_CEB;
-    static final Id LEADER_CIR = ConstantsSelector.TEAM_LEAD_ID_CIR;
-    static final Id LEADER_SALES_VP = ConstantsSelector.SALES_VP;
-    static final String PROFILE_CEB_LEAD = ConstantsSelector.TEST_PROFILE_CEB_LEAD;
-    static final String NOTE_TITLE = ConstantsSelector.TEST_CONTENT_NOTE_TITLE;
-    static final String PROFILE_NAME = ConstantsSelector.TEST_PROFILE_CEB_LEAD;
     static final String ROLE_NAME = 'BD_Sales';
-    static final String LAST_NAME = 'GenericLastName';
-
-    static List<Id> memberIds;
-    static List<ContentNote> cnLst;
+    static final String LAST_NAME_1 = 'GenericLastName_1';
+    static final String LAST_NAME_2 = 'GenericLastName_2';
+    static final String LAST_NAME_3 = 'GenericLastName_3';
+    static List<User> userLst1;
+    static List<User> userLst2;
+    static List<User> userLst3;
+    static Id userId1;
+    static Id userId2;
+    static Id userId3;
+    static User user3;
+    static Group testGroup;
+    static List<GroupMember> members;
+    static List<ContentNote> noteList;
     static Map<Id, ContentNote> noteMap;
     
-    @TestSetup static void dataCreation() {
-        // Create a test user "without Manager info" and add to a note sharing participating group
-        List<User> userLst;
-        Set<Id> userIds;
-        Group g;
-        List<GroupMember> members;
+    @TestSetup
+    static void dataCreation() {
+        // Create three test users: Manager +1, Manager, and Sales Rep, which is user3.
+        // Add user3 to the test public group.
         Test.startTest();
-        TestDataFactory.constructUser(PROFILE_NAME, ROLE_NAME, LAST_NAME);                     
+        TestDataFactory.constructUser(ConstantsSelector.TEST_PROFILE_CLIENT_SALES, ROLE_NAME, LAST_NAME_1);
+        TestDataFactory.constructUser(ConstantsSelector.TEST_PROFILE_CLIENT_SALES, ROLE_NAME, LAST_NAME_2);
+        TestDataFactory.constructUser(ConstantsSelector.TEST_PROFILE_CLIENT_SALES, ROLE_NAME, LAST_NAME_3);
         Test.stopTest();
-        userLst = [SELECT Id FROM User WHERE LastName = :LAST_NAME];
-        System.assertEquals(1, userLst.size(), 'Was expecting to find 1 user');
-        userIds = new Map<Id, User>(userLst).keySet();
-        g = TestDataFactory.constructPublicGroup(true);
-        members = TestDataFactory.constructPublicGroupMember(g.Id, userIds, true);
+
+        userLst1 = [SELECT Id FROM User WHERE LastName = :LAST_NAME_1];
+        userLst2 = [SELECT Id FROM User WHERE LastName = :LAST_NAME_2];
+        userLst3 = [SELECT Id FROM User WHERE LastName = :LAST_NAME_3];
+        System.assertEquals(1, userLst1.size(), 'Was expecting to find 1 user');
+        System.assertEquals(1, userLst2.size(), 'Was expecting to find 1 user');
+        System.assertEquals(1, userLst3.size(), 'Was expecting to find 1 user');
+
+        userId3 = userLst3[0].Id;
+        testGroup = TestDataFactory.constructPublicGroup(ConstantsSelector.TEST_GROUP_NAME, true);
+        members = TestDataFactory.constructPublicGroupMember(testGroup.Id, new Set<Id> { userId3 }, true);
         System.assertEquals(1, members.size(), 'Was expecting to find 1 group member');
     }
     
-    @isTest static void shouldShare_insertNotesWithOwnerOfTeamMembers_CEB() {
-        // Get the Ids of the members
-        memberIds = new GroupMembersSelector().selectByGroupId(new Set<Id> { GROUP_ID_CEB });
-        // startTest/stopTest block to force async processes to run
-        Test.startTest();        
-        cnLst = TestDataFactory.constructContentNotesOfGroupMembers(20, GROUP_ID_CEB, true);
-        TestDataFactory.contentDocumentLinkedToCurrentUser(cnLst, true);
-        Test.stopTest();
-        // Validate the job ran. Check if record have correct sharing now
-        noteMap = new Map<Id, ContentNote>([SELECT Id, OwnerId FROM ContentNote 
-                                            WHERE OwnerId IN :memberIds
-                                            AND Title LIKE :NOTE_TITLE + '%']);
-        System.assertEquals(20, noteMap.size(), 'Was expecting to find 20 content notes');
-        System.assertEquals(20, [SELECT COUNT() FROM ContentDocumentLink 
-                                WHERE LinkedEntityId = :LEADER_CEB
-                                AND ContentDocumentId IN :noteMap.keySet()],
-                                'Was expecting to find 20 content document links');
-        System.assertEquals(20, [SELECT COUNT() FROM ContentDocumentLink 
-                                WHERE LinkedEntityId = :LEADER_SALES_VP
-                                AND ContentDocumentId IN :noteMap.keySet()],
-                                'Was expecting to find 20 content document links');                                     
+    @IsTest static void notesToShareWithManagers() {
+        // Setup.
+        List<User> admins = [SELECT Id FROM User 
+                            WHERE ProfileId = :ConstantsSelector.SYSTEM_ADMIN_PROFILE_ID 
+                            AND IsActive = true];
+        userLst1 = [SELECT Id FROM User WHERE LastName = :LAST_NAME_1];
+        userLst2 = [SELECT Id FROM User WHERE LastName = :LAST_NAME_2];
+        userLst3 = [SELECT Id FROM User WHERE LastName = :LAST_NAME_3];
+        userId1 = userLst1[0].Id;
+        userId2 = userLst2[0].Id;
+        userId3 = userLst3[0].Id;
+        user3 = userLst3[0];
+
+        // Execution.
+        System.runAs(admins[0]) {
+            Test.startTest();
+            user3.ManagerId = userId1;
+            user3.Manager_1__c = userId2;
+            update user3; 
+
+            System.runAs(user3) {
+                noteList = new List<ContentNote>();
+                String body = 'Unit Test Note Body';
+                noteList.add(new ContentNote(Title = ConstantsSelector.TEST_CONTENT_NOTE_TITLE,
+                                            Content = Blob.valueOf(body.escapeHTML4())));
+                insert noteList;
+            }
+            TestDataFactory.contentDocumentLinkedToCurrentUser(noteList, true);
+            Test.stopTest();
+
+            // Check if record(s) have correct sharing now.
+            noteMap = new Map<Id, ContentNote>([SELECT Id, OwnerId FROM ContentNote 
+                                                WHERE OwnerId = :userId3
+                                                AND Title = :ConstantsSelector.TEST_CONTENT_NOTE_TITLE]);
+            System.assertEquals(1, noteMap.size(), 'Was expecting to find 1 content note');
+            System.assertEquals(1, [SELECT COUNT() FROM ContentDocumentLink 
+                                    WHERE LinkedEntityId = :userId1 
+                                    AND ContentDocumentId IN :noteMap.keySet()],
+                                    'Was expecting to find 1 content document link');
+            System.assertEquals(1, [SELECT COUNT() FROM ContentDocumentLink 
+                                    WHERE LinkedEntityId = :userId2
+                                    AND ContentDocumentId IN :noteMap.keySet()],
+                                    'Was expecting to find 1 content document link');
+        }
     }
 
-    @isTest static void shouldShare_insertNotesWithOwnerOfTeamMembers_CIR() {
-        // Get the Ids of the members
-        memberIds = new GroupMembersSelector().selectByGroupId(new Set<Id> { GROUP_ID_CIR });
-        // startTest/stopTest block to force async processes to run
-        Test.startTest();        
-        cnLst = TestDataFactory.constructContentNotesOfGroupMembers(20, GROUP_ID_CIR, true);
-        TestDataFactory.contentDocumentLinkedToCurrentUser(cnLst, true);
-        Test.stopTest();
-        // Validate the job ran. Check if record have correct sharing now
-        noteMap = new Map<Id, ContentNote>([SELECT Id, OwnerId FROM ContentNote 
-                                            WHERE OwnerId IN :memberIds
-                                            AND Title LIKE :NOTE_TITLE + '%']);
-        System.assertEquals(20, noteMap.size(), 'Was expecting to find 20 content notes');
-        System.assertEquals(20, [SELECT COUNT() FROM ContentDocumentLink 
-                                WHERE LinkedEntityId = :LEADER_CIR
-                                AND ContentDocumentId IN :noteMap.keySet()],
-                                'Was expecting to find 20 content document links');
-        System.assertEquals(20, [SELECT COUNT() FROM ContentDocumentLink 
-                                WHERE LinkedEntityId = :LEADER_SALES_VP
-                                AND ContentDocumentId IN :noteMap.keySet()],
-                                'Was expecting to find 20 content document links');                                       
-    }    
+    @IsTest static void notesFailToShareWithManagers() {
+        // Setup.
+        List<User> admins = [SELECT Id FROM User 
+                            WHERE ProfileId = :ConstantsSelector.SYSTEM_ADMIN_PROFILE_ID 
+                            AND IsActive = true];
+        userLst1 = [SELECT Id FROM User WHERE LastName = :LAST_NAME_1];
+        userLst2 = [SELECT Id FROM User WHERE LastName = :LAST_NAME_2];
+        userLst3 = [SELECT Id FROM User WHERE LastName = :LAST_NAME_3];
+        userId1 = userLst1[0].Id;
+        userId2 = userLst2[0].Id;
+        userId3 = userLst3[0].Id;
+        user3 = userLst3[0];
 
-    @isTest static void shouldShare_insertNotesWithOwnerOfTeamLead_CEB() {
-        // startTest/stopTest block to force async processes to run
-        Test.startTest();        
-        cnLst = TestDataFactory.constructContentNotesOfUser(20, LEADER_CEB, true);
-        TestDataFactory.contentDocumentLinkedToCurrentUser(cnLst, true);
-        Test.stopTest();
-        // Validate the job ran. Check if the ContentNoteSharingSettings class validated linkedEntityId already exists for the note
-        // If validation failed, the following error could occur:
-        // "System.DmlException: Insert failed. First exception on row 0; first error: INSUFFICIENT_ACCESS_OR_READONLY, Invalid sharing type I: [ShareType]"
-        // If assertion passed, the validation was handled properly
-        System.assertEquals(20, [SELECT COUNT() FROM ContentDocumentLink 
-                                WHERE LinkedEntityId = :LEADER_CEB
-                                AND ContentDocument.Title LIKE :NOTE_TITLE + '%'],
-                                'Was expecting to find 20 content document links');         
-        System.assertEquals(20, [SELECT COUNT() FROM ContentDocumentLink 
-                                WHERE LinkedEntityId = :LEADER_SALES_VP
-                                AND ContentDocument.Title LIKE :NOTE_TITLE + '%'],
-                                'Was expecting to find 20 content document links');                      
-    }    
+        Id groupId = [SELECT Id FROM Group WHERE Name = :ConstantsSelector.TEST_GROUP_NAME LIMIT 1].Id;
+        List<GroupMember> removeMembers = [SELECT Id FROM GroupMember WHERE GroupId = :groupId];
+        delete removeMembers;
 
-    @isTest static void shouldShare_insertNotesWithOwnerOfTeamLead_CIR() {
-        // startTest/stopTest block to force async processes to run
-        Test.startTest();        
-        cnLst = TestDataFactory.constructContentNotesOfUser(20, LEADER_CIR, true);
-        TestDataFactory.contentDocumentLinkedToCurrentUser(cnLst, true);
-        Test.stopTest();
-        // Validate the job ran. Check if the ContentNoteSharingSettings class validated linkedEntityId already exists for the note
-        // If validation failed, the following error could occur:
-        // "System.DmlException: Insert failed. First exception on row 0; first error: INSUFFICIENT_ACCESS_OR_READONLY, Invalid sharing type I: [ShareType]"
-        // If assertion passed, the validation was handled properly
-        System.assertEquals(20, [SELECT COUNT() FROM ContentDocumentLink 
-                                WHERE LinkedEntityId = :LEADER_CIR
-                                AND ContentDocument.Title LIKE :NOTE_TITLE + '%'],
-                                'Was expecting to find 20 content document links');            
-        System.assertEquals(20, [SELECT COUNT() FROM ContentDocumentLink 
-                                WHERE LinkedEntityId = :LEADER_SALES_VP
-                                AND ContentDocument.Title LIKE :NOTE_TITLE + '%'],
-                                'Was expecting to find 20 content document links');                      
-    }  
+        // Execution.
+        System.runAs(admins[0]) {
+            Test.startTest();
+            user3.ManagerId = userId1;
+            user3.Manager_1__c = userId2;
+            update user3;
 
-    @isTest static void shouldNotShareTriggerDisabled() {
+            System.runAs(user3) {
+                noteList = new List<ContentNote>();
+                String body = 'Unit Test Note Body';
+                noteList.add(new ContentNote(Title = ConstantsSelector.TEST_CONTENT_NOTE_TITLE,
+                                            Content = Blob.valueOf(body.escapeHTML4())));
+                insert noteList;
+            }
+            TestDataFactory.contentDocumentLinkedToCurrentUser(noteList, true);
+            Test.stopTest();
+
+            // Assert that records NOT shared because user3 was removed from the test public group.
+            noteMap = new Map<Id, ContentNote>([SELECT Id, OwnerId FROM ContentNote 
+                                                WHERE OwnerId = :userId3
+                                                AND Title = :ConstantsSelector.TEST_CONTENT_NOTE_TITLE]);
+            System.assertEquals(1, noteMap.size(), 'Was expecting to find 1 content note');
+            System.assertEquals(0, [SELECT COUNT() FROM ContentDocumentLink 
+                                    WHERE LinkedEntityId = :userId1 
+                                    AND ContentDocumentId IN :noteMap.keySet()],
+                                    'Was expecting to find 0 content document link');
+            System.assertEquals(0, [SELECT COUNT() FROM ContentDocumentLink 
+                                    WHERE LinkedEntityId = :userId2
+                                    AND ContentDocumentId IN :noteMap.keySet()],
+                                    'Was expecting to find 0 content document link');
+        }
+    }
+
+
+    @IsTest static void salesRepsWithoutManagers() {
+        // Setup.
+        List<User> admins = [SELECT Id FROM User 
+                            WHERE ProfileId = :ConstantsSelector.SYSTEM_ADMIN_PROFILE_ID 
+                            AND IsActive = true];
+        userLst3 = [SELECT Id FROM User WHERE LastName = :LAST_NAME_3];
+        userId3 = userLst3[0].Id;
+        user3 = userLst3[0];
+
+        // Execution.
+        System.runAs(admins[0]) {
+            Test.startTest();
+            System.runAs(user3) {
+                noteList = new List<ContentNote>();
+                String body = 'Unit Test Note Body';
+                noteList.add(new ContentNote(Title = ConstantsSelector.TEST_CONTENT_NOTE_TITLE,
+                                            Content = Blob.valueOf(body.escapeHTML4())));
+                insert noteList;
+            }
+            TestDataFactory.contentDocumentLinkedToCurrentUser(noteList, true);
+            Test.stopTest();
+
+            // Assert that records NOT shared because manager(s) not specified for user3
+            noteMap = new Map<Id, ContentNote>([SELECT Id, OwnerId FROM ContentNote 
+                                                WHERE OwnerId = :userId3
+                                                AND Title = :ConstantsSelector.TEST_CONTENT_NOTE_TITLE]);
+            System.assertEquals(1, noteMap.size(), 'Was expecting to find 1 content note');
+            System.assertEquals(0, [SELECT COUNT() FROM ContentDocumentLink 
+                                    WHERE LinkedEntityId = :userId1 
+                                    AND ContentDocumentId IN :noteMap.keySet()],
+                                    'Was expecting to find 0 content document link');
+            System.assertEquals(0, [SELECT COUNT() FROM ContentDocumentLink 
+                                    WHERE LinkedEntityId = :userId2
+                                    AND ContentDocumentId IN :noteMap.keySet()],
+                                    'Was expecting to find 0 content document link');
+        }
+    }
+
+    @IsTest static void salesRepsWithoutManagerPlus1() {
+        // Setup.
+        List<User> admins = [SELECT Id FROM User 
+                            WHERE ProfileId = :ConstantsSelector.SYSTEM_ADMIN_PROFILE_ID 
+                            AND IsActive = true];
+        userLst1 = [SELECT Id FROM User WHERE LastName = :LAST_NAME_1];
+        userId1 = userLst1[0].Id;
+        userLst3 = [SELECT Id FROM User WHERE LastName = :LAST_NAME_3];
+        userId3 = userLst3[0].Id;
+        user3 = userLst3[0];
+
+        // Execution.
+        System.runAs(admins[0]) {
+            Test.startTest();
+            user3.ManagerId = userId1;
+            update user3;
+
+            System.runAs(user3) {
+                noteList = new List<ContentNote>();
+                String body = 'Unit Test Note Body';
+                noteList.add(new ContentNote(Title = ConstantsSelector.TEST_CONTENT_NOTE_TITLE,
+                                            Content = Blob.valueOf(body.escapeHTML4())));
+                insert noteList;
+            }
+            TestDataFactory.contentDocumentLinkedToCurrentUser(noteList, true);
+            Test.stopTest();
+
+            // Assert that record shared with immediate manager only.
+            noteMap = new Map<Id, ContentNote>([SELECT Id, OwnerId FROM ContentNote 
+                                                WHERE OwnerId = :userId3
+                                                AND Title = :ConstantsSelector.TEST_CONTENT_NOTE_TITLE]);
+            System.assertEquals(1, noteMap.size(), 'Was expecting to find 1 content note');
+            System.assertEquals(1, [SELECT COUNT() FROM ContentDocumentLink 
+                                    WHERE LinkedEntityId = :userId1 
+                                    AND ContentDocumentId IN :noteMap.keySet()],
+                                    'Was expecting to find 1 content document link');
+            System.assertEquals(0, [SELECT COUNT() FROM ContentDocumentLink 
+                                    WHERE LinkedEntityId = :userId2
+                                    AND ContentDocumentId IN :noteMap.keySet()],
+                                    'Was expecting to find 0 content document link');
+        }
+    }
+
+    @IsTest static void shouldNotShareTriggerDisabled() {
         TriggerSettings__c settings;
-        // Get the Ids of the members
-        memberIds = new GroupMembersSelector().selectByGroupId(new Set<Id> { GROUP_ID_CEB });
-        // Retrieve Custom Settings status, for org defaults
+        // Retrieve Custom Settings status, for org defaults.
         settings = TriggerSettings__c.getOrgDefaults();
         System.assert(!settings.ContentDocumentLinkTriggerDisabled__c, 'Trigger is not disabled in Custom Settings');
-        // Disable Trigger through Custom Settings
+        // Disable Trigger through Custom Settings.
         settings.ContentDocumentLinkTriggerDisabled__c = true;
         upsert settings;
-        System.assert(settings.ContentDocumentLinkTriggerDisabled__c, 'Trigger is disabled in Custom Settings');      
-        // startTest/stopTest block to force async processes to run
-        Test.startTest();        
-        cnLst = TestDataFactory.constructContentNotesOfGroupMembers(20, GROUP_ID_CEB, true);
-        TestDataFactory.contentDocumentLinkedToCurrentUser(cnLst, true);
-        Test.stopTest();
-        // Validate the job ran. Assert that records not owned by team lead or sales vp are NOT directly shared with them
-        noteMap = new Map<Id, ContentNote>([SELECT Id, OwnerId FROM ContentNote 
-                                            WHERE OwnerId IN :memberIds
-                                            AND Title LIKE :NOTE_TITLE + '%']);
-        System.assertEquals(20, noteMap.size(), 'Was expecting to find 20 content notes');
-        System.assertEquals(0, [SELECT COUNT() FROM ContentDocumentLink 
-                                WHERE LinkedEntityId = :LEADER_CEB
-                                AND ContentDocument.OwnerId != :LEADER_CEB
-                                AND ContentDocumentId IN :noteMap.keySet()],
-                                'Was expecting to find 0 content document links');
-        System.assertEquals(0, [SELECT COUNT() FROM ContentDocumentLink 
-                                WHERE LinkedEntityId = :LEADER_SALES_VP
-                                AND ContentDocument.OwnerId != :LEADER_SALES_VP
-                                AND ContentDocumentId IN :noteMap.keySet()],
-                                'Was expecting to find 0 content document links');                                        
-    }
+        System.assert(settings.ContentDocumentLinkTriggerDisabled__c, 'Trigger is disabled in Custom Settings');
 
-    @isTest static void shouldNotShareWithoutManagerInfo() {		
-        // Any user in the note sharing participating group should have a value in the "Manager" field on their user records.
-        // Note @testSetup dataCreation() method
-        // ==> this method creates a test user "without Manager info" and add to a note sharing participating group.
-        // ==> lastly, have test user create a note and verify auto-sharing did not happen and not cause errors.
-        User u = [SELECT Id FROM User WHERE LastName = :LAST_NAME LIMIT 1];
-        Test.startTest();
-        cnLst = TestDataFactory.constructContentNotesOfUser(1, u.Id, true);
-        TestDataFactory.contentDocumentLinkedToCurrentUser(cnLst, true);
-        Test.stopTest();
-        noteMap = new Map<Id, ContentNote>([SELECT Id, OwnerId FROM ContentNote 
-                                            WHERE OwnerId = :u.Id
-                                            AND Title LIKE :NOTE_TITLE + '%']);
-		// Validate two content document links were created for this note without errors
-		// Expect to find 2 content doc links: 
-        // one linked to note owner and the other one linked to the current context user (whoever runs this test class)       
-        System.assertEquals(2, [SELECT COUNT() FROM ContentDocumentLink 
-                                WHERE ContentDocumentId IN :noteMap.keySet()],
-                                'Was expecting to find 2 content document links');         
-    }
+        List<User> admins = [SELECT Id FROM User 
+                            WHERE ProfileId = :ConstantsSelector.SYSTEM_ADMIN_PROFILE_ID 
+                            AND IsActive = true];
+        userLst1 = [SELECT Id FROM User WHERE LastName = :LAST_NAME_1];
+        userLst2 = [SELECT Id FROM User WHERE LastName = :LAST_NAME_2];
+        userLst3 = [SELECT Id FROM User WHERE LastName = :LAST_NAME_3];
+        userId1 = userLst1[0].Id;
+        userId2 = userLst2[0].Id;
+        userId3 = userLst3[0].Id;
+        user3 = userLst3[0];
 
+        // Execution.
+        System.runAs(admins[0]) {
+            Test.startTest();
+            user3.ManagerId = userId1;
+            user3.Manager_1__c = userId2;
+            update user3;
+
+            System.runAs(user3) {
+                noteList = new List<ContentNote>();
+                String body = 'Unit Test Note Body';
+                noteList.add(new ContentNote(Title = ConstantsSelector.TEST_CONTENT_NOTE_TITLE,
+                                            Content = Blob.valueOf(body.escapeHTML4())));
+                insert noteList;
+            }
+            TestDataFactory.contentDocumentLinkedToCurrentUser(noteList, true);
+            Test.stopTest();
+
+            // Assert that records NOT shared.
+            noteMap = new Map<Id, ContentNote>([SELECT Id, OwnerId FROM ContentNote 
+                                                WHERE OwnerId = :userId3
+                                                AND Title = :ConstantsSelector.TEST_CONTENT_NOTE_TITLE]);
+            System.assertEquals(1, noteMap.size(), 'Was expecting to find 1 content note');
+            System.assertEquals(0, [SELECT COUNT() FROM ContentDocumentLink 
+                                    WHERE LinkedEntityId = :userId1 
+                                    AND ContentDocumentId IN :noteMap.keySet()],
+                                    'Was expecting to find 0 content document link');
+            System.assertEquals(0, [SELECT COUNT() FROM ContentDocumentLink 
+                                    WHERE LinkedEntityId = :userId2
+                                    AND ContentDocumentId IN :noteMap.keySet()],
+                                    'Was expecting to find 0 content document link');
+        }                                   
+    }
+    
 }

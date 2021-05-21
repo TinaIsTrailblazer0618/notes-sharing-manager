@@ -1,7 +1,7 @@
-@isTest
+@IsTest
 private class OTRT_OpptyRecordTypeController_Test {
 
-    @isTest static void testGetOpptyRecordTypes() {
+    @IsTest static void testGetOpptyRecordTypes() {
 
         Map<String, Schema.RecordTypeInfo> rtMapByDeveloperName = SObjectUtils.mapRecordTypeByDeveloperName('Opportunity');
         Integer i = 0;    

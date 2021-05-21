@@ -8,8 +8,6 @@
 **/
 public inherited sharing class ContentNoteSharingSettings implements Queueable {
 
-    public class NotesSharingException extends Exception {}
-
     Map<Id, Id> mapNoteUserIds; // ContentDocumentId, OwnerId;
     Set<Id> noteIds;
     Map<Id, Set<Id>> notesToShareWithMgrs;
@@ -40,7 +38,6 @@ public inherited sharing class ContentNoteSharingSettings implements Queueable {
         if (!cdlsToInsert.isEmpty()) {
             try {
                 insert cdlsToInsert;
-                System.debug('cdlsToInsert: ' + cdlsToInsert);
             } catch (Exception e) {
                 System.debug('The following exception has occurred: ' + e.getMessage());
             }
@@ -82,9 +79,7 @@ public inherited sharing class ContentNoteSharingSettings implements Queueable {
         notesToShareWithMgrs = new Map<Id, Set<Id>>();
         Map<Id, Set<Id>> mapDocToEntities = queryAllRelatedLinks(noteIds);
         for (Id noteId : noteIds) {
-            System.debug('noteId is ' + noteId);
-            Set<Id> linkedEntityIds = mapDocToEntities.get(noteId);
-            System.debug('linkedEntityIds are ' + linkedEntityIds); 
+            Set<Id> linkedEntityIds = mapDocToEntities.get(noteId); 
             Id ownerId = mapNoteUserIds.get(noteId);
             Set<Id> mgrIds = mapUserMgrIds.get(ownerId);
             if (mgrIds != null) {
@@ -102,8 +97,7 @@ public inherited sharing class ContentNoteSharingSettings implements Queueable {
                     } // If managers of group members have already been granted access to note records, do nothing          
                 }
         	}		
-        }
-        System.debug('notesToShareWithMgrs: ' + notesToShareWithMgrs);     
+        }  
     }
 
     /**
@@ -135,8 +129,7 @@ public inherited sharing class ContentNoteSharingSettings implements Queueable {
      * @name insertContentDocumentLink
      * @description Private helper Method
      */
-    void insertContentDocumentLink(Map<Id, Set<Id>> notesToShareWithMgrs) {
-        System.debug('# of ContentDocumentLink to create: ' + notesToShareWithMgrs.values());         
+    void insertContentDocumentLink(Map<Id, Set<Id>> notesToShareWithMgrs) {        
         for (Id noteId : notesToShareWithMgrs.keySet()) {
             for (Id mgrId : notesToShareWithMgrs.get(noteId)) {
                 ContentDocumentLink cdl = new ContentDocumentLink();

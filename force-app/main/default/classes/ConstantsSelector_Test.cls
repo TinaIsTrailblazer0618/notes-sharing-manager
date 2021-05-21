@@ -1,16 +1,11 @@
-@isTest
+@IsTest
 private class ConstantsSelector_Test {
 
-    @isTest static void assertConstants() {
-        System.assertEquals('00G2x000000IwW9EAK', ConstantsSelector.GROUP_ID_CEB, 'Incorrect Id.');
-        System.assertEquals('00528000005Geu7AAC', ConstantsSelector.TEAM_LEAD_ID_CEB, 'Incorrect Id.');
-        System.assertEquals('00G2x000000Iy4eEAC', ConstantsSelector.GROUP_ID_CIR, 'Incorrect Id.');
-        System.assertEquals('0050K00000A72yfQAB', ConstantsSelector.TEAM_LEAD_ID_CIR, 'Incorrect Id.');
-        System.assertEquals('00528000002VP7YAAW', ConstantsSelector.SALES_VP, 'Incorrect Id.');
+    @IsTest static void assertConstants() {
         System.assertEquals('SNOTE', ConstantsSelector.FILE_TYPE_SNOTE, 'Incorrect note type name.');
         System.assertEquals('ClientEmployeeBenefits', ConstantsSelector.RECORD_TYPE_CEB, 'Incorrect record type dev name.');
         System.assertEquals('ClientIncentivesRewards', ConstantsSelector.RECORD_TYPE_CIR, 'Incorrect record type dev name.');
-        System.assertEquals(Datetime.now().addDays(-10), ConstantsSelector.NOTE_MODIFIED_START_DATE, 
+        System.assertEquals(Datetime.now().addDays(-10).date(), ConstantsSelector.NOTE_MODIFIED_START_DATE.date(), 
             'Note modified start date should be 10 days ago.');
         System.assertEquals(Datetime.now(), ConstantsSelector.NOTE_MODIFIED_END_DATE,
             'Note modified end date should be today.');
@@ -21,8 +16,10 @@ private class ConstantsSelector_Test {
         System.assertEquals('TestOpp - YearEndBonus', ConstantsSelector.TEST_OPP_NAME_CEB, 'Incorrect test opp name.');
         System.assertEquals('TestContentVersion' + Date.today(), ConstantsSelector.TEST_CONTENT_VERSION_TITLE, 'Incorrect test version name.');
         System.assertEquals('TestContentNote' + Date.today(), ConstantsSelector.TEST_CONTENT_NOTE_TITLE, 'Incorrect test note name.');
-        System.assertEquals('Client Sales', ConstantsSelector.TEST_PROFILE_CEB_LEAD, 'Incorrect test username.');
-        System.assertEquals('TestGroup4UAT_DoNotDelete', ConstantsSelector.TEST_GROUP_NAME, 'Incorrect group name.');
+        System.assertEquals('Client Sales', ConstantsSelector.TEST_PROFILE_CLIENT_SALES, 'Incorrect test profile.');
+        System.assertEquals('TestGroup_DoNotDelete', ConstantsSelector.TEST_GROUP_NAME, 'Incorrect group name.');
+        System.assertEquals([SELECT Id FROM Profile WHERE Name = 'System Administrator'].Id, 
+            ConstantsSelector.SYSTEM_ADMIN_PROFILE_ID, 'Incorrect Id.');
     }
 
 }

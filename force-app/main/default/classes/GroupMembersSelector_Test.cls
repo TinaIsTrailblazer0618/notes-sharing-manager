@@ -1,7 +1,7 @@
-@isTest
+@IsTest
 private class GroupMembersSelector_Test {
 
-    static final String PROFILE_NAME = ConstantsSelector.TEST_PROFILE_CEB_LEAD;
+    static final String PROFILE_NAME = ConstantsSelector.TEST_PROFILE_CLIENT_SALES;
     static final String ROLE_NAME = 'BD_Sales';
     static final String LAST_NAME = 'GenericLastName'; 
 
@@ -12,11 +12,11 @@ private class GroupMembersSelector_Test {
         Test.stopTest();
 
         User u = [SELECT Id FROM User WHERE LastName = :LAST_NAME LIMIT 1];
-        Group testGroup = TestDataFactory.constructPublicGroup(true);
+        Group testGroup = TestDataFactory.constructPublicGroup(ConstantsSelector.TEST_GROUP_NAME, true);
         List<GroupMember> testMembers = TestDataFactory.constructPublicGroupMember(testGroup.Id, new Set<Id> { u.Id }, true);
     }
 
-    @isTest static void testSelectByGroupId() {   
+    @IsTest static void testSelectByGroupId() {   
         Group g = [SELECT Id FROM Group WHERE Name = :ConstantsSelector.TEST_GROUP_NAME];
         // Sanity check asserting that there is a group before executing the tested method.
         System.assert(g != null, 'You need a group to continue.');

@@ -1,6 +1,6 @@
 /** 
  * @author Tina Chang
- * @builtDate June 27, 2020
+ * @builtDate May 2021
  * @name ContentDocumentLinkTriggerHandler
  * @description Custom trigger handler setup to handle all triggers received on ContentDocumentLink object
 **/
@@ -31,7 +31,8 @@ public class ContentDocumentLinkTriggerHandler implements TriggerHandlerInterfac
     }
  
     public void afterInsert(Map<Id, SObject> newItems) {
-        ContentDocumentLinkHelper.shouldShareWithOthers(newItems.values());
+        ContentDocumentLinkHelper cdlHelper = new ContentDocumentLinkHelper();
+        cdlHelper.checkIfNotesShouldShareWithManagers(newItems.values());
     }
  
     public void afterUpdate(Map<Id, SObject> newItems, Map<Id, SObject> oldItems) {

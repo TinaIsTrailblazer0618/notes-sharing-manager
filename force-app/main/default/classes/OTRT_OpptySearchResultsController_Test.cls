@@ -1,7 +1,7 @@
-@isTest
+@IsTest
 private class OTRT_OpptySearchResultsController_Test {
 
-    static final String PROFILE_NAME = ConstantsSelector.TEST_PROFILE_CEB_LEAD;
+    static final String PROFILE_NAME = ConstantsSelector.TEST_PROFILE_CLIENT_SALES;
     static final String RECORD_TYPE = ConstantsSelector.RECORD_TYPE_CEB; 
     static final String ROLE_NAME = 'BD_Sales';
     static final String LAST_NAME = 'GenericLastName';
@@ -17,7 +17,7 @@ private class OTRT_OpptySearchResultsController_Test {
             'Closed Lost', RECORD_TYPE, true);
     }
   
-    @isTest static void testGetOpportunitiesNone() {
+    @IsTest static void testGetOpportunitiesNone() {
         List<Opportunity> sanityCheckListOfOpps = [SELECT Id FROM Opportunity 
                                                     WHERE Name LIKE :ConstantsSelector.TEST_OPP_NAME_CEB + '%'];
         // Sanity check asserting that there are opportunities before executing the tested method.
@@ -42,7 +42,7 @@ private class OTRT_OpptySearchResultsController_Test {
         System.assertEquals(0, oppLst.size(), 'Expected to have returned 0 opportunities.');                                             
     }
 
-    @isTest static void testGetOpportunitiesAll() {
+    @IsTest static void testGetOpportunitiesAll() {
         List<Opportunity> sanityCheckListOfOpps = [SELECT Id FROM Opportunity 
                                                     WHERE Name LIKE :ConstantsSelector.TEST_OPP_NAME_CEB + '%'];
         // Sanity check asserting that there are opportunities before executing the tested method.
@@ -65,7 +65,7 @@ private class OTRT_OpptySearchResultsController_Test {
         System.assertEquals(45, oppLst.size(), 'Expected to have returned 45 opportunities.');                                                              
     }
 
-    @isTest static void testGetOpportunitiesOpenAndClosedWon() {
+    @IsTest static void testGetOpportunitiesOpenAndClosedWon() {
         List<Opportunity> sanityCheckListOfOpps = [SELECT Id FROM Opportunity 
                                                     WHERE Name LIKE :ConstantsSelector.TEST_OPP_NAME_CEB + '%'];
         // Sanity check asserting that there are opportunities before executing the tested method.
@@ -88,7 +88,7 @@ private class OTRT_OpptySearchResultsController_Test {
         System.assertEquals(30, oppLst.size(), 'Expected to have returned 30 opportunities.');    
     }
 
-    @isTest static void testGetOpportunitiesOpenAndClosedLost() {
+    @IsTest static void testGetOpportunitiesOpenAndClosedLost() {
         List<Opportunity> sanityCheckListOfOpps = [SELECT Id FROM Opportunity 
                                                     WHERE Name LIKE :ConstantsSelector.TEST_OPP_NAME_CEB + '%'];
         // Sanity check asserting that there are opportunities before executing the tested method.
@@ -111,7 +111,7 @@ private class OTRT_OpptySearchResultsController_Test {
         System.assertEquals(30, oppLst.size(), 'Expected to have returned 30 opportunities.');                                                             
     }
 
-    @isTest static void testGetOpportunitiesClosedWonAndClosedLost() {
+    @IsTest static void testGetOpportunitiesClosedWonAndClosedLost() {
         List<Opportunity> sanityCheckListOfOpps = [SELECT Id FROM Opportunity 
                                                     WHERE Name LIKE :ConstantsSelector.TEST_OPP_NAME_CEB + '%'];
         // Sanity check asserting that there are opportunities before executing the tested method.
@@ -134,7 +134,7 @@ private class OTRT_OpptySearchResultsController_Test {
         System.assertEquals(30, oppLst.size(), 'Expected to have returned 30 opportunities.');                                                              
     }
 
-    @isTest static void testGetOpportunitiesOpen() {
+    @IsTest static void testGetOpportunitiesOpen() {
         List<Opportunity> sanityCheckListOfOpps = [SELECT Id FROM Opportunity 
                                                     WHERE Name LIKE :ConstantsSelector.TEST_OPP_NAME_CEB + '%'];
         // Sanity check asserting that there are opportunities before executing the tested method.
@@ -157,7 +157,7 @@ private class OTRT_OpptySearchResultsController_Test {
         System.assertEquals(15, oppLst.size(), 'Expected to have returned 15 opportunities.');
     }
 
-    @isTest static void testGetOpportunitiesClosedWon() {
+    @IsTest static void testGetOpportunitiesClosedWon() {
         List<Opportunity> sanityCheckListOfOpps = [SELECT Id FROM Opportunity 
                                                     WHERE Name LIKE :ConstantsSelector.TEST_OPP_NAME_CEB + '%'];
         // Sanity check asserting that there are opportunities before executing the tested method.
@@ -180,7 +180,7 @@ private class OTRT_OpptySearchResultsController_Test {
         System.assertEquals(15, oppLst.size(), 'Expected to have returned 15 opportunities.');    
     }
 
-    @isTest static void testGetOpportunitiesClosedLost() {
+    @IsTest static void testGetOpportunitiesClosedLost() {
         List<Opportunity> sanityCheckListOfOpps = [SELECT Id FROM Opportunity 
                                                     WHERE Name LIKE :ConstantsSelector.TEST_OPP_NAME_CEB + '%'];
         // Sanity check asserting that there are opportunities before executing the tested method.
@@ -204,7 +204,7 @@ private class OTRT_OpptySearchResultsController_Test {
     }
 
 
-    @isTest static void testGetOpportunitiesWithoutNotes() {
+    @IsTest static void testGetOpportunitiesWithoutNotes() {
         List<Opportunity> sanityCheckListOfOpps = [SELECT Id FROM Opportunity 
                                                     WHERE Name LIKE :ConstantsSelector.TEST_OPP_NAME_CEB + '%'];        
         // Sanity check asserting that there are opportunities before executing the tested method.
@@ -228,7 +228,7 @@ private class OTRT_OpptySearchResultsController_Test {
         System.assertEquals(0, oppLst.size(), 'Expected to have returned an empty oppLst.');    
     }
     
-    @isTest static void testGetOpportunitiesWithoutAccess() {
+    @IsTest static void testGetOpportunitiesWithoutAccess() {
         List<Boolean> exceptions = new List<Boolean>();
         Boolean isShowingOpenOppties = false;
         Boolean isShowingClosedWonOppties = false;

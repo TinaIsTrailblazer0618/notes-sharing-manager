@@ -1,8 +1,8 @@
-@isTest
+@IsTest
 private class OTRT_NoteSearchController_Test {
 
     static final String PROFILE_NAME_1 = 'Minimum Access - Salesforce';
-    static final String PROFILE_NAME_2 = ConstantsSelector.TEST_PROFILE_CEB_LEAD;
+    static final String PROFILE_NAME_2 = ConstantsSelector.TEST_PROFILE_CLIENT_SALES;
     static final String ROLE_NAME = 'BD_Sales';
     static final String LAST_NAME = 'GenericLastName';
     static final String LAST_NAME_MIN_ACCESS = 'GenericLastNameMinAccess';
@@ -27,7 +27,7 @@ private class OTRT_NoteSearchController_Test {
         TestDataFactory.contentDocumentLinkedToSObject(opps, notes, true);
     }
 
-    @isTest static void testPositiveGetNote() {     
+    @IsTest static void testPositiveGetNote() {     
         List<Opportunity> sanityCheckListOfOpps = [SELECT Id FROM Opportunity WHERE Name 
                                                     LIKE :ConstantsSelector.TEST_OPP_NAME_CEB + '%'];
         // Sanity check asserting that there are opportunities before executing the tested method.
@@ -43,7 +43,7 @@ private class OTRT_NoteSearchController_Test {
         Test.stopTest();
     }
 
-    @isTest static void testNegativeGetNote() {     
+    @IsTest static void testNegativeGetNote() {     
         List<Opportunity> sanityCheckListOfOpps = [SELECT Id FROM Opportunity 
                                                     WHERE Name LIKE :ConstantsSelector.TEST_OPP_NAME_CEB + '%'];
         // Sanity check asserting that there are opportunities before executing the tested method.
@@ -64,7 +64,7 @@ private class OTRT_NoteSearchController_Test {
         Test.stopTest();
     }
 
-    @isTest static void testGetNoteWithoutAccess() {   
+    @IsTest static void testGetNoteWithoutAccess() {   
         List<Boolean> exceptions = new List<Boolean>();
         DateTime d1 = ConstantsSelector.NOTE_MODIFIED_START_DATE;
         DateTime d2 = ConstantsSelector.NOTE_MODIFIED_END_DATE;

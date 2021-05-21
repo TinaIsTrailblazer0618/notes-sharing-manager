@@ -6,11 +6,6 @@
 **/
 public with sharing class ConstantsSelector {
 
-    public static final Id GROUP_ID_CEB = System.Label.Client_Employee_Benefits_Team_Members;
-    public static final Id TEAM_LEAD_ID_CEB = System.Label.Client_Employee_Benefits_Team_Lead;
-    public static final Id GROUP_ID_CIR = System.Label.Client_Incentives_Rewards_Team_Members;
-    public static final Id TEAM_LEAD_ID_CIR = System.Label.Client_Incentives_Rewards_Team_Lead;
-    public static final Id SALES_VP = System.Label.Sales_VP;
     public static final String FILE_TYPE_SNOTE = 'SNOTE';
     public static final String RECORD_TYPE_CEB = System.Label.Record_Type_Client_Employee_Benefits;
     public static final String RECORD_TYPE_CIR = System.Label.Record_Type_Client_Incentives_Rewards;
@@ -23,7 +18,9 @@ public with sharing class ConstantsSelector {
     public static final String TEST_OPP_NAME_CEB = 'TestOpp - YearEndBonus';
     public static final String TEST_CONTENT_VERSION_TITLE = 'TestContentVersion' + Date.today();
     public static final String TEST_CONTENT_NOTE_TITLE = 'TestContentNote' + Date.today();
-    public static final String TEST_PROFILE_CEB_LEAD = System.Label.Profile_CEB_Team_Lead;
+    public static final String TEST_PROFILE_CLIENT_SALES = System.Label.Profile_Client_Sales;
     public static final String TEST_GROUP_NAME = System.Label.Group_Name_for_Apex_Test_Class;
+    public static final Id SYSTEM_ADMIN_PROFILE_ID = 
+        [SELECT Id FROM Profile WHERE Name = 'System Administrator'].Id;
     
 }

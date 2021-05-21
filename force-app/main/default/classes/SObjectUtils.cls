@@ -6,6 +6,14 @@
  */
 public with sharing class SObjectUtils {
 
+    public static List<Schema.PicklistEntry> getPicklistValues(String typeName, String fieldName) {        
+        Schema.DescribeSObjectResult result = getDescribeSObjectResult(typeName);
+        Map<String, Schema.SObjectField> fields = result.fields.getMap();
+        Schema.DescribeFieldResult fieldResult = fields.get(fieldName).getDescribe();
+        List<Schema.PicklistEntry> pickListValues = fieldResult.getPicklistValues();   
+        return pickListValues;
+    }
+
     public static Map<Id, Schema.RecordTypeInfo> mapRecordTypeById(String typeName) {
         Schema.DescribeSObjectResult result = getDescribeSObjectResult(typeName);
         Map<Id, Schema.RecordTypeInfo> rtMapById = result.getRecordTypeInfosById();

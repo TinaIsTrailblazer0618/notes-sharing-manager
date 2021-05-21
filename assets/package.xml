@@ -13,7 +13,6 @@
     <members>Notes_Sharing_Group.Client_Employee_Benefits_Team_Members</members>
     <members>Notes_Sharing_Group.Client_Incentives_Rewards_Team_Members</members>
     <members>Notes_Sharing_Group.Merchant_Team_Members</members>
-    <members>Notes_Sharing_Group.TestGroup4UAT_DoNotDelete</members>
 </types>
 <types>
     <name>Group</name>
@@ -39,14 +38,9 @@
     <members>User.Manager_1__c</members>
 </types>
 <types>
-    <members>Client_Employee_Benefits_Team_Members</members>
-    <members>Client_Employee_Benefits_Team_Lead</members>
-    <members>Client_Incentives_Rewards_Team_Members</members>
-    <members>Client_Incentives_Rewards_Team_Lead</members>
-    <members>Sales_VP</members>
     <members>Record_Type_Client_Employee_Benefits</members>
     <members>Record_Type_Client_Incentives_Rewards</members>
-    <members>Profile_CEB_Team_Lead</members>
+    <members>Profile_Client_Sales</members>
     <members>Group_Name_for_Apex_Test_Class</members>
     <name>CustomLabel</name>
 </types>  
