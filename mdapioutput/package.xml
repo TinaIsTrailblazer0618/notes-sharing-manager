@@ -1,4 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Package xmlns="http://soap.sforce.com/2006/04/metadata">
+  <types>
+    <name>ApexClass</name>
+    <members>ConstantsSelector</members>
+    <members>ConstantsSelector_Test</members>
+    <members>ContentDocumentLinkHelper</members>
+    <members>ContentDocumentLinkHelper_Test</members>
+    <members>ContentDocumentLinkTriggerHandler</members>
+    <members>ContentDocumentLinkTriggerHandler_Test</members>
+    <members>ContentNoteSharingSettings</members>
+    <members>GroupMembersSelector</members>
+    <members>GroupMembersSelector_Test</members>
+    <members>OTRT_NoteContentDecoder</members>
+    <members>OTRT_NoteContentDecoder_Test</members>
+    <members>OTRT_NoteSearchController</members>
+    <members>OTRT_NoteSearchController_Test</members>
+    <members>OTRT_OpportunityRecordTypeController</members>
+    <members>OTRT_OpportunitySearchResultsController</members>
+    <members>OTRT_OpptyRecordTypeController_Test</members>
+    <members>OTRT_OpptySearchResultsController_Test</members>
+    <members>SObjectUtils</members>
+    <members>SObjectUtils_Test</members>
+    <members>TestDataFactory</members>
+    <members>TriggerDispatcher</members>
+    <members>TriggerHandlerInterface</members>
+  </types>
   <version>51.0</version>
 </Package>
